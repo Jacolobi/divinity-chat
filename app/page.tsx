@@ -5,9 +5,22 @@ import { Message } from '@/types/chat';
 import MarkdownMessage from '@/components/MarkdownMessage';
 
 export default function Home() {
+  const angelSystemMessage: Message = {
+    role: 'system',
+    content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.`
+  };
+  const devilSystemMessage: Message = {
+    role: 'system',
+    content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.`
+  };
+
   const [userMessages, setUserMessages] = useState<Message[]>([]);
-  const [angelMessages, setAngelMessages] = useState<Message[]>([]);
-  const [devilMessages, setDevilMessages] = useState<Message[]>([]);
+  const [angelMessages, setAngelMessages] = useState<Message[]>([
+    angelSystemMessage
+  ]);
+  const [devilMessages, setDevilMessages] = useState<Message[]>([
+    devilSystemMessage
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -16,19 +29,19 @@ export default function Home() {
     const merged: Message[] = [];
     const maxLength = Math.max(user.length, assistant.length);
     for (let i = 0; i < maxLength; i++) {
-      if (user[i]) merged.push(user[i]);
       if (assistant[i]) merged.push(assistant[i]);
+      if (user[i]) merged.push(user[i]);
     }
     return merged;
   };
 
   const mergeAllMessages = (user: Message[], angel: Message[], devil: Message[]) => {
     const merged: Message[] = [];
-    const maxLength = Math.max(user.length, angel.length, devil.length);
+    const maxLength = Math.max(user.length, angel.length-1, devil.length-1);
     for (let i = 0; i < maxLength; i++) {
       if (user[i]) merged.push(user[i]);
-      if (angel[i]) merged.push(angel[i]);
-      if (devil[i]) merged.push(devil[i]);
+      if (angel[i+1]) merged.push(angel[i+1]);
+      if (devil[i+1]) merged.push(devil[i+1]);
     }
     return merged;
   }
@@ -91,6 +104,9 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: angelConversation }),
       });
+
+      // Delay due to rate limiting
+      await new Promise(resolve => setTimeout(resolve, 1100));
 
       const devilConversation = mergeMessages(
         [...userMessages, userMessage],

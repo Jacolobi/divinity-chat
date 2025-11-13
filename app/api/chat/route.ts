@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
 
     const response = await client.chat.stream({
         model: 'mistral-small-latest',
-        messages: messages
+        messages: messages,
+        topP: 0.6,
         }
     );
 
