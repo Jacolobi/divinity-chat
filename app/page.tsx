@@ -5,10 +5,24 @@ import { Message } from '@/types/chat';
 import MarkdownMessage from '@/components/MarkdownMessage';
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [userMessages, setUserMessages] = useState<Message[]>([]);
+  const [angelMessages, setAngelMessages] = useState<Message[]>([]);
+  const [devilMessages, setDevilMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const mergeMessages = (user: Message[], assistant: Message[]) => {
+    const merged: Message[] = [];
+    const maxLength = Math.max(user.length, assistant.length);
+    for (let i = 0; i < maxLength; i++) {
+      if (user[i]) merged.push(user[i]);
+      if (assistant[i]) merged.push(assistant[i]);
+    }
+    return merged;
+  };
+
+  const messages = mergeMessages(userMessages, angelMessages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -23,48 +37,86 @@ export default function Home() {
     if (!input.trim()) return;
     
     const userMessage: Message = { role: 'user', content: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
+    setUserMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     // Create a placeholder for the assistant's message
-    const assistantMessageIndex = messages.length + 1;
-    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+    setAngelMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+    setDevilMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
-      const response = await fetch('/api/chat', {
+      const angelConversation = mergeMessages(
+        [...userMessages, userMessage],
+        angelMessages
+      );
+
+      const devilConversation = mergeMessages(
+        [...userMessages, userMessage],
+        devilMessages
+      );
+
+      const angelResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ messages: angelConversation }),
       });
 
-      if (!response.ok) {
+      const devilResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: devilConversation }),
+      });
+
+      if (!(angelResponse.ok && devilResponse.ok)) {
         throw new Error('Failed to get response from server');
       }
 
-      const reader = response.body?.getReader();
+      const angelReader = angelResponse.body?.getReader();
+      const devilReader = devilResponse.body?.getReader();
       const decoder = new TextDecoder();
       
-      if (!reader) {
+      if (!(angelReader && devilReader)) {
         throw new Error('No response body');
       }
 
-      let assistantMessage = '';
+      let angelMessage = '';
+      let devilMessage = '';
 
       while (true) {
-        const { done, value } = await reader.read();
+        const { done, value } = await angelReader.read();
 
         if (done) break;
         
         const chunk = decoder.decode(value, { stream: true });
-        assistantMessage += chunk;
+        angelMessage += chunk;
 
         //Updates the assistants message
-        setMessages((prev) => {
+        setAngelMessages((prev) => {
           const newMessages = [...prev];
-          newMessages[assistantMessageIndex] = {
+          const lastIndex = newMessages.length - 1;
+          newMessages[lastIndex] = {
             role: 'assistant',
-            content: assistantMessage,
+            content: angelMessage,
+          };
+          return newMessages;
+        });
+      }      
+      while (true) {
+        const { done, value } = await devilReader.read();
+
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        devilMessage += chunk;
+
+        //Updates the assistants message
+        setDevilMessages((prev) => {
+          const newMessages = [...prev];
+          const lastIndex = newMessages.length - 1;
+          newMessages[lastIndex] = {
+            role: 'assistant',
+            content: devilMessage,
           };
           return newMessages;
         });
