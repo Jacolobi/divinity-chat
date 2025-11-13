@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const { messages } = await request.json();
 
     const response = await client.chat.stream({
-        model: 'mistral-medium-latest',
+        model: 'mistral-small-latest',
         messages: messages
         }
     );

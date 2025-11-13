@@ -32,6 +32,30 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
+  const readResponse = async (reader: ReadableStreamDefaultReader<Uint8Array>, setMessages: React.Dispatch<React.SetStateAction<Message[]>>) => {
+    const decoder = new TextDecoder();
+    let message = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        message += chunk;
+
+        // Updates the assistant's message
+        setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastIndex = newMessages.length - 1;
+            newMessages[lastIndex] = {
+                role: 'assistant',
+                content: message,
+            };
+            return newMessages;
+        });
+    }
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -51,16 +75,16 @@ export default function Home() {
         angelMessages
       );
 
-      const devilConversation = mergeMessages(
-        [...userMessages, userMessage],
-        devilMessages
-      );
-
       const angelResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: angelConversation }),
       });
+
+      const devilConversation = mergeMessages(
+        [...userMessages, userMessage],
+        devilMessages
+      );
 
       const devilResponse = await fetch('/api/chat', {
         method: 'POST',
@@ -74,53 +98,15 @@ export default function Home() {
 
       const angelReader = angelResponse.body?.getReader();
       const devilReader = devilResponse.body?.getReader();
-      const decoder = new TextDecoder();
-      
+
       if (!(angelReader && devilReader)) {
         throw new Error('No response body');
       }
 
-      let angelMessage = '';
-      let devilMessage = '';
-
-      while (true) {
-        const { done, value } = await angelReader.read();
-
-        if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        angelMessage += chunk;
-
-        //Updates the assistants message
-        setAngelMessages((prev) => {
-          const newMessages = [...prev];
-          const lastIndex = newMessages.length - 1;
-          newMessages[lastIndex] = {
-            role: 'assistant',
-            content: angelMessage,
-          };
-          return newMessages;
-        });
-      }      
-      while (true) {
-        const { done, value } = await devilReader.read();
-
-        if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        devilMessage += chunk;
-
-        //Updates the assistants message
-        setDevilMessages((prev) => {
-          const newMessages = [...prev];
-          const lastIndex = newMessages.length - 1;
-          newMessages[lastIndex] = {
-            role: 'assistant',
-            content: devilMessage,
-          };
-          return newMessages;
-        });
-      }
+      await Promise.all([
+        readResponse(angelReader, setAngelMessages),
+        readResponse(devilReader, setDevilMessages),
+      ]);
     } catch (error) {
       console.error('Error during chat:', error);
     } finally {
