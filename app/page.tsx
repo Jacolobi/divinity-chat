@@ -22,7 +22,18 @@ export default function Home() {
     return merged;
   };
 
-  const messages = mergeMessages(userMessages, angelMessages);
+  const mergeAllMessages = (user: Message[], angel: Message[], devil: Message[]) => {
+    const merged: Message[] = [];
+    const maxLength = Math.max(user.length, angel.length, devil.length);
+    for (let i = 0; i < maxLength; i++) {
+      if (user[i]) merged.push(user[i]);
+      if (angel[i]) merged.push(angel[i]);
+      if (devil[i]) merged.push(devil[i]);
+    }
+    return merged;
+  }
+
+  const messages = mergeAllMessages(userMessages, angelMessages, devilMessages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -139,7 +150,9 @@ export default function Home() {
                 className={`max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    : index % 3 === 1
+                    ? 'bg-gray-100 text-gray-800'
+                    : 'bg-orange-100 text-gray-800'
                 }`}
               >
                 {message.role === 'user' ? (
