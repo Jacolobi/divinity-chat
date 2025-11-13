@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +24,70 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom code block styling */
+.markdown-content pre {
+  @apply bg-gray-900 rounded-lg p-4 overflow-x-auto my-4;
+}
+
+.markdown-content code {
+  @apply text-sm font-mono;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.markdown-content :not(pre) > code {
+  @apply bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm;
+}
+
+/* Other markdown elements */
+.markdown-content h1 {
+  @apply text-2xl font-bold mt-6 mb-4;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-bold mt-5 mb-3;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+.markdown-content p {
+  @apply mb-4;
+}
+
+.markdown-content ul {
+  @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.markdown-content ol {
+  @apply list-decimal list-inside mb-4 space-y-2;
+}
+
+.markdown-content li {
+  @apply ml-4;
+}
+
+.markdown-content a {
+  @apply text-blue-600 hover:underline;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.markdown-content table {
+  @apply min-w-full border-collapse mb-4;
+}
+
+.markdown-content th {
+  @apply border border-gray-300 px-4 py-2 bg-gray-100 font-bold;
+}
+
+.markdown-content td {
+  @apply border border-gray-300 px-4 py-2;
 }
