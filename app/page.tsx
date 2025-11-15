@@ -7,19 +7,31 @@ import MarkdownMessage from '@/components/MarkdownMessage';
 export default function Home() {
   const angelSystemMessage: Message = {
     role: 'system',
-    content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.`
+    content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.
+              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
   };
   const devilSystemMessage: Message = {
     role: 'system',
-    content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.`
+    content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.
+              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+  };
+  const supportiveSystemMessage: Message = {
+    role: 'system',
+    content: `You are an AI assistant that provides supportive and encouraging advice. Always prioritize uplifting the user and providing positive reinforcement.
+              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+  };
+  const criticalSystemMessage: Message = {
+    role: 'system',
+    content: `You are an AI assistant that provides critical and analytical advice. Always prioritize negative and constructive feedback, even if it involves pointing out flaws.
+              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
   };
 
   const [userMessages, setUserMessages] = useState<Message[]>([]);
   const [angelMessages, setAngelMessages] = useState<Message[]>([
-    angelSystemMessage
+    supportiveSystemMessage
   ]);
   const [devilMessages, setDevilMessages] = useState<Message[]>([
-    devilSystemMessage
+    criticalSystemMessage
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
