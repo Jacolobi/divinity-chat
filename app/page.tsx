@@ -98,26 +98,41 @@ export default function Home() {
         [...userMessages, userMessage],
         angelMessages
       );
-
-      const angelResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: angelConversation }),
-      });
-
-      // Delay due to rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1100));
-
+      
       const devilConversation = mergeMessages(
         [...userMessages, userMessage],
         devilMessages
       );
 
-      const devilResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: devilConversation }),
-      });
+      const fetchWithRetry = async (url: string, options: RequestInit, maxRetries = 5) => {
+        let response = await fetch(url, options);
+        let retries = 0;
+        
+        while(response.status === 429 && retries < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1100));
+          response = await fetch(url, options);
+          retries++;
+        }
+        
+        if (response.status === 429) {
+          throw new Error(`Rate limited after ${maxRetries} retries`);
+        }
+        
+        return response;
+      };
+
+      const [angelResponse, devilResponse] = await Promise.all([
+        fetchWithRetry('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: angelConversation }),
+        }),
+        fetchWithRetry('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: devilConversation }),
+        })
+      ]);
 
       if (!(angelResponse.ok && devilResponse.ok)) {
         throw new Error('Failed to get response from server');
