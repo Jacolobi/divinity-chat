@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "./output.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +25,6 @@ export default function RootLayout({
   return (
     <html lang="en">
         <head>
-        <link href="./output.css" rel="stylesheet"/>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css"
