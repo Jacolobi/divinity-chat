@@ -116,30 +116,13 @@ export default function Home() {
         devilMessages
       );
 
-      const fetchWithRetry = async (url: string, options: RequestInit, maxRetries = 5) => {
-        let response = await fetch(url, options);
-        let retries = 0;
-
-        while(response.status === 429 && retries < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1100));
-          response = await fetch(url, options);
-          retries++;
-        }
-
-        if (response.status === 429) {
-          throw new Error(`Rate limited after ${maxRetries} retries`);
-        }
-
-        return response;
-      };
-
       const [angelResponse, devilResponse] = await Promise.all([
-        fetchWithRetry('/api/chat', {
+        fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: angelConversation }),
         }),
-        fetchWithRetry('/api/chat', {
+        fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: devilConversation }),
