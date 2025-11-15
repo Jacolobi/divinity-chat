@@ -7,18 +7,38 @@ const client = new Mistral({
   apiKey: apiKey,
 });
 
+const fetchMistralWithRetry = async (messages: any[], maxRetries = 5) => {
+  let retries = 0;
+  
+  while (retries <= maxRetries) {
+    try {
+        const response = await client.chat.stream({
+            model: 'mistral-medium-latest',
+            messages: messages,
+            topP: 0.6,
+            stream: true,
+            }
+        );
+      return response;
+    } catch (error: any) {
+      if (error.statusCode === 429 && retries < maxRetries) {
+        console.log(`Rate limited, retry ${retries + 1}/${maxRetries}`);
+        await new Promise(resolve => setTimeout(resolve, 1100));
+        retries++;
+      } else {
+        throw error;
+      }
+    }
+  }
+  
+  throw new Error('Rate limited after maximum retries');
+};
+
 export async function POST(request: NextRequest) {
   try {
     const { messages } = await request.json();
-
-    const response = await client.chat.stream({
-        model: 'mistral-medium-latest',
-        messages: messages,
-        topP: 0.6,
-        stream: true,
-        }
-    );
-
+    
+    const response = await fetchMistralWithRetry(messages);
     const stream = new ReadableStream({
         async start(controller) {
             try {
