@@ -78,7 +78,7 @@ export default function Home() {
             return newMessages;
         });
     }
-};
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,26 +98,41 @@ export default function Home() {
         [...userMessages, userMessage],
         angelMessages
       );
-
-      const angelResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: angelConversation }),
-      });
-
-      // Delay due to rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1100));
-
+      
       const devilConversation = mergeMessages(
         [...userMessages, userMessage],
         devilMessages
       );
 
-      const devilResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: devilConversation }),
-      });
+      const fetchWithRetry = async (url: string, options: RequestInit, maxRetries = 5) => {
+        let response = await fetch(url, options);
+        let retries = 0;
+
+        while(response.status === 429 && retries < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1100));
+          response = await fetch(url, options);
+          retries++;
+        }
+
+        if (response.status === 429) {
+          throw new Error(`Rate limited after ${maxRetries} retries`);
+        }
+
+        return response;
+      };
+
+      const [angelResponse, devilResponse] = await Promise.all([
+        fetchWithRetry('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: angelConversation }),
+        }),
+        fetchWithRetry('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: devilConversation }),
+        })
+      ]);
 
       if (!(angelResponse.ok && devilResponse.ok)) {
         throw new Error('Failed to get response from server');
@@ -142,53 +157,34 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-50">
-      <div className="w-full max-w-3xl flex flex-col h-screen py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          AI Chatbot
-        </h1>
-        
-        <div className="flex-1 overflow-y-auto mb-4 bg-white rounded-lg shadow-lg p-4 space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center text-gray-500 mt-8">
-              Start a conversation by typing a message below
-            </div>
-          )}
-          
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : index % 3 === 1
-                    ? 'bg-gray-100 text-gray-800'
-                    : 'bg-orange-100 text-gray-800'
-                }`}
-              >
-                {message.role === 'user' ? (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                ) : (
-                  <div>
-                    <MarkdownMessage content={message.content} />
-                    {isLoading && index === messages.length - 1 && (
-                      <span className="inline-block w-2 h-4 ml-1 bg-gray-600 animate-pulse"></span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          <div ref={messagesEndRef} />
+    <main className="flex min-h-screen flex-col items-center px-4 bg-gray-50">
+      <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
+        <div className="flex overflow-y-auto justify-start col-start-1 col-span-2 row-start-2 row-span-4 bg-gray-100 rounded-r-lg rounded-bl-lg ">
+          <div className="flex px-4 py-2 text-gray-800">
+            {messages.length === 0
+              ? ''
+              : <MarkdownMessage content={messages[messages.length-2].content} />
+            }
+          </div>
         </div>
-
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
+          <div className="px-4 py-2 rounded-lg bg-blue-800 text-white text-center">
+            {messages.length === 0
+              ? ''
+              : <p className="text-xl">{messages[messages.length-3].content}</p>
+            }
+          </div>
+        </div>
+          <div ref={messagesEndRef} />
+        <div className="flex overflow-y-auto justify-end col-start-6 col-span-2 row-start-2 row-span-4 bg-orange-100 rounded-l-lg rounded-br-lg">
+          <div className="flex px-4 py-2 text-gray-800">
+            {messages.length === 0
+              ? ''
+              : <MarkdownMessage content={messages[messages.length-1].content} />
+            }
+          </div>
+        </div>
+        <form onSubmit={handleSubmit} className="flex col-start-3 col-span-3 row-start-6 py-2 gap-2">
           <input
             type="text"
             value={input}

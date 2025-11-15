@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
         model: 'mistral-small-latest',
         messages: messages,
         topP: 0.6,
+        stream: true,
         }
     );
 
