@@ -107,17 +107,17 @@ export default function Home() {
       const fetchWithRetry = async (url: string, options: RequestInit, maxRetries = 5) => {
         let response = await fetch(url, options);
         let retries = 0;
-        
+
         while(response.status === 429 && retries < maxRetries) {
           await new Promise(resolve => setTimeout(resolve, 1100));
           response = await fetch(url, options);
           retries++;
         }
-        
+
         if (response.status === 429) {
           throw new Error(`Rate limited after ${maxRetries} retries`);
         }
-        
+
         return response;
       };
 
@@ -157,9 +157,9 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-50">
-      <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen py-8">
-        <div className="flex overflow-y-auto justify-start col-start-1 col-span-2 row-start-2 row-span-5 bg-gray-100 rounded-r-lg rounded-bl-lg ">
+    <main className="flex min-h-screen flex-col items-center px-4 bg-gray-50">
+      <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
+        <div className="flex overflow-y-auto justify-start col-start-1 col-span-2 row-start-2 row-span-4 bg-gray-100 rounded-r-lg rounded-bl-lg ">
           <div className="flex px-4 py-2 text-gray-800">
             {messages.length === 0
               ? ''
@@ -176,7 +176,7 @@ export default function Home() {
           </div>
         </div>
           <div ref={messagesEndRef} />
-        <div className="flex overflow-y-auto justify-end col-start-6 col-span-2 row-start-2 row-span-5 bg-orange-100 rounded-l-lg rounded-br-lg">
+        <div className="flex overflow-y-auto justify-end col-start-6 col-span-2 row-start-2 row-span-4 bg-orange-100 rounded-l-lg rounded-br-lg">
           <div className="flex px-4 py-2 text-gray-800">
             {messages.length === 0
               ? ''
