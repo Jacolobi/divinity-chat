@@ -152,40 +152,38 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-4 bg-gray-50">
+    <main className="flex min-h-screen flex-col items-center px-4">
       <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
-        <div className="flex overflow-y-auto justify-start col-start-1 col-span-2 row-start-2 row-span-4 bg-gray-100 rounded-r-lg rounded-bl-lg ">
-          <div className="flex px-4 py-2 text-gray-800">
-            {messages.length === 0
-              ? ''
-              : <MarkdownMessage content={messages[messages.length-2].content} />
-            }
-          </div>
+        <div className="overflow-y-auto col-start-1 col-span-2 row-start-2 row-span-4">
+          {messages.length > 1 && (
+            <div className="inline-flex p-2 border-1 border-white rounded-r-xl rounded-bl-xl">
+              <MarkdownMessage content={messages[messages.length-2].content} />
+            </div>
+          )}
         </div>
         <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
-          <div className="px-4 py-2 rounded-lg bg-blue-800 text-white text-center">
+          <div className="px-4 py-2 rounded-lg text-center">
             {messages.length === 0
               ? ''
-              : <p className="text-xl">{messages[messages.length-3].content}</p>
+              : <p className="text-3xl">{messages[messages.length-3].content}</p>
             }
           </div>
         </div>
           <div ref={messagesEndRef} />
-        <div className="flex overflow-y-auto justify-end col-start-6 col-span-2 row-start-2 row-span-4 bg-orange-100 rounded-l-lg rounded-br-lg">
-          <div className="flex px-4 py-2 text-gray-800">
-            {messages.length === 0
-              ? ''
-              : <MarkdownMessage content={messages[messages.length-1].content} />
-            }
-          </div>
+        <div className="flex justify-end items-start overflow-y-auto col-start-6 col-span-2 row-start-2 row-span-4">
+          {messages.length > 1 && (
+            <div className="inline-flex p-2 border-1 border-white rounded-l-xl rounded-br-xl">
+              <MarkdownMessage content={messages[messages.length-1].content} />
+            </div>
+          )}
         </div>
-        <form onSubmit={handleSubmit} className="flex col-start-3 col-span-3 row-start-6 py-2 gap-2">
+        <form onSubmit={handleSubmit} className="flex col-start-2 col-span-5 row-start-6 py-2 gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isLoading}
           />
           <button
