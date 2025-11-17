@@ -5,12 +5,13 @@ import { Message } from '@/types/chat';
 import MarkdownMessage from '@/components/MarkdownMessage';
 
 export default function Home() {
-  const angelSystemMessage: Message = {
+  const [persona, setPersona] = useState<'good-evil' | 'supportive-critical'>('good-evil');
+  const goodSystemMessage: Message = {
     role: 'system',
     content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.
               Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
   };
-  const devilSystemMessage: Message = {
+  const evilSystemMessage: Message = {
     role: 'system',
     content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.
               Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
@@ -28,10 +29,10 @@ export default function Home() {
 
   const [userMessages, setUserMessages] = useState<Message[]>([]);
   const [angelMessages, setAngelMessages] = useState<Message[]>([
-    supportiveSystemMessage
+    goodSystemMessage
   ]);
   const [devilMessages, setDevilMessages] = useState<Message[]>([
-    criticalSystemMessage
+    evilSystemMessage
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +68,16 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (persona === 'good-evil') {
+      setAngelMessages((prev) => [goodSystemMessage, ...prev.slice(1)]);
+      setDevilMessages((prev) => [evilSystemMessage, ...prev.slice(1)]);
+    } else {
+      setAngelMessages((prev) => [supportiveSystemMessage, ...prev.slice(1)]);
+      setDevilMessages((prev) => [criticalSystemMessage, ...prev.slice(1)]);
+    }
+  }, [persona]);
 
   const readResponse = async (reader: ReadableStreamDefaultReader<Uint8Array>, setMessages: React.Dispatch<React.SetStateAction<Message[]>>) => {
     const decoder = new TextDecoder();
@@ -152,40 +163,54 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-4 bg-gray-50">
+    <main className="flex min-h-screen flex-col items-center px-4">
       <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
-        <div className="flex overflow-y-auto justify-start col-start-1 col-span-2 row-start-2 row-span-4 bg-gray-100 rounded-r-lg rounded-bl-lg ">
-          <div className="flex px-4 py-2 text-gray-800">
-            {messages.length === 0
-              ? ''
-              : <MarkdownMessage content={messages[messages.length-2].content} />
-            }
-          </div>
+        <h1 className='text-5xl my-auto row-start-1 col-start-2 col-span-3'>Divinity Chat</h1>
+        <div className="w-full max-w-5xl p-2 flex justify-center col-start-5 col-span-1 row-start-1">
+          <label className="flex flex-col items-center gap-2">
+            <span>Select Personas</span>
+            <select
+              value={persona}
+              onChange={(e) => setPersona(e.target.value as 'good-evil' | 'supportive-critical')}
+              className="px-3 py-1 border rounded-md bg-white text-black"
+              aria-label="Select persona"
+            >
+              <option value="good-evil">Good / Evil</option>
+              <option value="supportive-critical">Supportive / Critical</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="overflow-y-auto col-start-1 col-span-2 row-start-2 row-span-4">
+          {messages.length > 1 && (
+            <div className="inline-flex p-2 border-1 border-white rounded-r-xl rounded-bl-xl">
+              <MarkdownMessage content={messages[messages.length-2].content} />
+            </div>
+          )}
         </div>
         <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
-          <div className="px-4 py-2 rounded-lg bg-blue-800 text-white text-center">
+          <div className="px-4 py-2 rounded-lg text-center">
             {messages.length === 0
               ? ''
-              : <p className="text-xl">{messages[messages.length-3].content}</p>
+              : <p className="text-3xl">{messages[messages.length-3].content}</p>
             }
           </div>
         </div>
           <div ref={messagesEndRef} />
-        <div className="flex overflow-y-auto justify-end col-start-6 col-span-2 row-start-2 row-span-4 bg-orange-100 rounded-l-lg rounded-br-lg">
-          <div className="flex px-4 py-2 text-gray-800">
-            {messages.length === 0
-              ? ''
-              : <MarkdownMessage content={messages[messages.length-1].content} />
-            }
-          </div>
+        <div className="flex justify-end items-start overflow-y-auto col-start-6 col-span-2 row-start-2 row-span-4">
+          {messages.length > 1 && (
+            <div className="inline-flex p-2 border-1 border-white rounded-l-xl rounded-br-xl">
+              <MarkdownMessage content={messages[messages.length-1].content} />
+            </div>
+          )}
         </div>
-        <form onSubmit={handleSubmit} className="flex col-start-3 col-span-3 row-start-6 py-2 gap-2">
+        <form onSubmit={handleSubmit} className="flex col-start-2 col-span-5 row-start-6 py-2 gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isLoading}
           />
           <button
