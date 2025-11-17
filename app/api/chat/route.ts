@@ -7,7 +7,7 @@ const client = new Mistral({
   apiKey: apiKey,
 });
 
-const fetchMistralWithRetry = async (messages: any[], maxRetries = 5) => {
+const fetchMistralWithRetry = async (messages: any[], maxRetries = 10) => {
   let retries = 0;
   
   while (retries <= maxRetries) {

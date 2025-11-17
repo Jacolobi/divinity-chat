@@ -127,18 +127,19 @@ export default function Home() {
         devilMessages
       );
 
-      const [angelResponse, devilResponse] = await Promise.all([
+      const angelResponse = await
         fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: angelConversation }),
-        }),
+        });
+
+      const devilResponse = await
         fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: devilConversation }),
-        })
-      ]);
+        });
 
       if (!(angelResponse.ok && devilResponse.ok)) {
         throw new Error('Failed to get response from server');
