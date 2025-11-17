@@ -38,6 +38,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const refreshPage = () => {
+    window.location.reload();
+  };
+
   const mergeMessages = (user: Message[], assistant: Message[]) => {
     const merged: Message[] = [];
     const maxLength = Math.max(user.length, assistant.length);
@@ -60,14 +64,6 @@ export default function Home() {
   }
 
   const messages = mergeAllMessages(userMessages, angelMessages, devilMessages);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   useEffect(() => {
     if (persona === 'good-evil') {
@@ -127,19 +123,17 @@ export default function Home() {
         devilMessages
       );
 
-      const angelResponse = await
-        fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: angelConversation }),
-        });
+      const angelResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: angelConversation }),
+      });
 
-      const devilResponse = await
-        fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: devilConversation }),
-        });
+      const devilResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: devilConversation }),
+      });
 
       if (!(angelResponse.ok && devilResponse.ok)) {
         throw new Error('Failed to get response from server');
@@ -166,7 +160,15 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center px-4">
       <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
-        <h1 className='text-5xl my-auto row-start-1 col-start-2 col-span-3'>Divinity Chat</h1>
+        <button
+          type="button"
+          onClick={refreshPage}
+          className="px-3 py-1 my-auto text-white rounded-md border col-start-3 row-start-1 hover:bg-gray-700 transition-colors"
+          aria-label="New Chat"
+          title="New Chat"
+        >
+          New Chat
+        </button>        
         <div className="w-full max-w-5xl p-2 flex justify-center col-start-5 col-span-1 row-start-1">
           <label className="flex flex-col items-center gap-2">
             <span>Select Personas</span>
@@ -183,11 +185,14 @@ export default function Home() {
         </div>
 
         <div className="overflow-y-auto col-start-1 col-span-2 row-start-2 row-span-4">
-          {messages.length > 1 && (
-            <div className="inline-flex p-2 border-1 border-white rounded-r-xl rounded-bl-xl">
-              <MarkdownMessage content={messages[messages.length-2].content} />
-            </div>
-          )}
+          <div className="flex flex-col items-start">
+            <span className='text-4xl'>😇</span>
+            {messages.length > 1 && (
+              <div className="inline-flex p-2 border-1 border-white rounded-r-xl rounded-bl-xl">
+                <MarkdownMessage content={messages[messages.length-2].content} />
+              </div>
+            )}
+          </div>
         </div>
         <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
           <div className="px-4 py-2 rounded-lg text-center">
@@ -197,13 +202,16 @@ export default function Home() {
             }
           </div>
         </div>
-          <div ref={messagesEndRef} />
-        <div className="flex justify-end items-start overflow-y-auto col-start-6 col-span-2 row-start-2 row-span-4">
-          {messages.length > 1 && (
-            <div className="inline-flex p-2 border-1 border-white rounded-l-xl rounded-br-xl">
+        <div ref={messagesEndRef} />
+        <div className="flex justify-end overflow-y-auto col-start-6 col-span-2 row-start-2 row-span-4">
+          <div className="flex flex-col items-end">
+            <span className='text-4xl'>😈</span>
+            {messages.length > 1 && (
+              <div className="inline-flex p-2 border-1 border-white rounded-l-xl rounded-br-xl">
               <MarkdownMessage content={messages[messages.length-1].content} />
             </div>
           )}
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="flex col-start-2 col-span-5 row-start-6 py-2 gap-2">
           <input
