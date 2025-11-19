@@ -36,6 +36,7 @@ export default function Home() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const refreshPage = () => {
@@ -151,7 +152,11 @@ export default function Home() {
         readResponse(devilReader, setDevilMessages),
       ]);
     } catch (error) {
+      const errorMessage = 'An error occurred. Start a new chat and try again.';
+      setError(errorMessage);
       console.error('Error during chat:', error);
+      // Auto-dismiss error after 5 seconds
+      setTimeout(() => setError(null), 10000);
     } finally {
       setIsLoading(false);
     }
@@ -159,6 +164,20 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center px-4">
+      {error && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm z-50 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between gap-4">
+            <span>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="text-white hover:text-gray-200 text-xl font-bold"
+              aria-label="Close error"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-5xl grid grid-cols-7 grid-rows-6 gap-6 h-screen">
         <button
           type="button"

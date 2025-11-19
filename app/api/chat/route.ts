@@ -13,7 +13,7 @@ const fetchMistralWithRetry = async (messages: any[], maxRetries = 10) => {
   while (retries <= maxRetries) {
     try {
         const response = await client.chat.stream({
-            model: 'mistral-medium-latest',
+            model: 'mistral-small-latest',
             messages: messages,
             topP: 0.6,
             stream: true,
