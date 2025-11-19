@@ -197,7 +197,7 @@ export default function Home() {
         <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
           <div className="px-4 py-2 rounded-lg text-center">
             {messages.length === 0
-              ? ''
+              ? <p className="text-3xl">An angel to you left and a devil to your right, ask a question and they'll provide insight</p>
               : <p className="text-3xl">{messages[messages.length-3].content}</p>
             }
           </div>
