@@ -1,4 +1,9 @@
-# divinity-chat
+# Divinity Chat
+
+>An angel to you left and a devil to your right,
+ask a question and they'll provide insight
+
+Divine the answers to your most pressing questions with Divinity Chat! Each of your messages will be answered by both an angel and a devil giving you new perspectives. Depending on the guidance you seek, different advice can be granted. Select the Good/Evil persona for questions about life, or choose Supportive/Critical if you are exploring new ideas. 
 
 ## Quick start
 
@@ -26,7 +31,7 @@ npm install
 npm run dev
 ```
 
-Docker
+Running it with Docker
 ```bash
 docker build -t divinity-chat .
 docker run -p 3000:3000 --env-file .env divinity-chat
