@@ -10,7 +10,7 @@ Prerequisites
 
 Clone directory
 ```bash
-git clone https://github.com/your-org/divinity-chat.git
+git clone https://github.com/Jacolobi/divinity-chat.git
 cd divinity-chat
 ```
 
