@@ -2,6 +2,11 @@
 
 Divine the answers to your most pressing questions with Divinity Chat! Each of your messages will be answered by both an angel and a devil giving you new perspectives. Depending on the guidance you seek, different advice can be granted. Select the Good/Evil persona for questions about life, or choose Supportive/Critical if you are exploring new ideas. 
 
+## Try it out
+
+https://divinity-chat.vercel.app/
+*Note: This deployment uses the free API and is prone to rate-limiting. Using your own key following the instructions below is recommended.*
+
 ## Quick start
 
 Prerequisites
