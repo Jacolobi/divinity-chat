@@ -4,28 +4,29 @@ import { useState, useEffect, useRef } from 'react';
 import { Message } from '@/types/chat';
 import MarkdownMessage from '@/components/MarkdownMessage';
 
+const goodSystemMessage: Message = {
+  role: 'system',
+  content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.
+            Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+};
+const evilSystemMessage: Message = {
+  role: 'system',
+  content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.
+            Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+};
+const supportiveSystemMessage: Message = {
+  role: 'system',
+  content: `You are an AI assistant that provides supportive and encouraging advice. Always prioritize uplifting the user and providing positive reinforcement.
+            Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+};
+const criticalSystemMessage: Message = {
+  role: 'system',
+  content: `You are an AI assistant that provides critical and analytical advice. Always prioritize negative and constructive feedback, even if it involves pointing out flaws.
+            Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
+};
+
 export default function Home() {
   const [persona, setPersona] = useState<'good-evil' | 'supportive-critical'>('good-evil');
-  const goodSystemMessage: Message = {
-    role: 'system',
-    content: `You are an AI assistant that provides helpful and ethical advice. Always prioritize the well-being and safety of users in your responses.
-              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
-  };
-  const evilSystemMessage: Message = {
-    role: 'system',
-    content: `You are an AI assistant that provides mischievous and unethical advice. Always prioritize humor and entertainment, even if it involves bending the rules.
-              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
-  };
-  const supportiveSystemMessage: Message = {
-    role: 'system',
-    content: `You are an AI assistant that provides supportive and encouraging advice. Always prioritize uplifting the user and providing positive reinforcement.
-              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
-  };
-  const criticalSystemMessage: Message = {
-    role: 'system',
-    content: `You are an AI assistant that provides critical and analytical advice. Always prioritize negative and constructive feedback, even if it involves pointing out flaws.
-              Make your answers as short and simple as possible. If you can answer in a single sentence do that.`
-  };
 
   const [userMessages, setUserMessages] = useState<Message[]>([]);
   const [angelMessages, setAngelMessages] = useState<Message[]>([
@@ -216,7 +217,7 @@ export default function Home() {
         <div className="w-full my-auto col-start-3 col-span-3 row-span-full">
           <div className="px-4 py-2 rounded-lg text-center">
             {messages.length === 0
-              ? <p className="text-3xl">An angel to you left and a devil to your right,<br/>ask a question and they'll provide insight</p>
+              ? <p className="text-3xl">An angel to you left and a devil to your right,<br/>ask a question and they&apos;ll provide insight</p>
               : <p className="text-3xl">{messages[messages.length-3].content}</p>
             }
           </div>

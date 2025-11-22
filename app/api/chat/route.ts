@@ -1,3 +1,4 @@
+import { Message } from '@/types/chat';
 import { Mistral } from '@mistralai/mistralai';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -7,7 +8,7 @@ const client = new Mistral({
   apiKey: apiKey,
 });
 
-const fetchMistralWithRetry = async (messages: any[], maxRetries = 10) => {
+const fetchMistralWithRetry = async (messages: Message[], maxRetries = 10) => {
   let retries = 0;
   
   while (retries <= maxRetries) {
@@ -20,8 +21,8 @@ const fetchMistralWithRetry = async (messages: any[], maxRetries = 10) => {
             }
         );
       return response;
-    } catch (error: any) {
-      if (error.statusCode === 429 && retries < maxRetries) {
+    } catch (error: unknown) {
+      if (error instanceof Error && 'statusCode' in error && error.statusCode === 429 && retries < maxRetries) {
         console.log(`Rate limited, retry ${retries + 1}/${maxRetries}`);
         await new Promise(resolve => setTimeout(resolve, 1100));
         retries++;
