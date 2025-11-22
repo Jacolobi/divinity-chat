@@ -5,6 +5,7 @@ Divine the answers to your most pressing questions with Divinity Chat! Each of y
 ## Try it out
 
 https://divinity-chat.vercel.app/
+
 *Note: This deployment uses the free API and is prone to rate-limiting. Using your own key following the instructions below is recommended.*
 
 ## Quick start
